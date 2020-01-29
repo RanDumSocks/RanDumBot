@@ -8,3 +8,8 @@ exports.run = (argc, argv, userstate, RanDumBot) => {
   }
   RanDumBot.client.say(process.env.CHANNEL_NAME, (Math.floor(Math.random() * (maxNum - minNum)) + minNum + 1).toString());
 }
+
+exports.help = () => {
+  return '!random [x] [y]: Picks a random number between x & y. ' +
+         'Default values are x=0, y=100';
+}

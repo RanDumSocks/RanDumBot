@@ -14,14 +14,6 @@ var d = new Date();
 var logName = (`${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}_${d.getHours()}${d.getMinutes()}${d.getSeconds()}`);
 if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
 
-// Load Commands
-var normalizedPath = require("path").join(__dirname, "commands");
-var commandMap = [];
-require("fs").readdirSync(normalizedPath).forEach(function(file) {
-  commandMap.push([file.slice(0, file.length - 3),
-                  require("./commands/" + file)]);
-});
-
 // Start webserver
 var app = express()
 var server = http.createServer(app);
@@ -30,7 +22,7 @@ server.listen(8080);
 app.use(express.static(__dirname));
 
 /**
- * RanDumBot all purpose Twitch bot using tmijs.
+ * All purpose Twitch bot using tmijs.
  */
 class RanDumBot {
   /**
@@ -39,6 +31,15 @@ class RanDumBot {
    * See {@link https://github.com/RanDumSocks/RanDumBot/wiki#environment-variables|Environment Variables Setup}
    */
   constructor() {
+    // Load commands
+    var normalizedPath = require("path").join(__dirname, "commands");
+    var commandMapBuild = [];
+    require("fs").readdirSync(normalizedPath).forEach( (file) => {
+      commandMapBuild.push([file.slice(0, file.length - 3),
+                           require("./commands/" + file)]);
+    });
+    this.private_commandMap = commandMapBuild;
+
     const opts = {
       identity: {
         username: process.env.BOT_USERNAME,
@@ -49,7 +50,7 @@ class RanDumBot {
       ]
     };
 
-    this.client = new tmi.client(opts);
+    this.private_client = new tmi.client(opts);
 
     // Client listeners
     this.client.on('message', (channel, userstate, message, self) =>
@@ -64,6 +65,7 @@ class RanDumBot {
 
   /**
    * See {@link https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#message|tmijs Events: Message}
+   * @ignore
    */
   onMessage(channel, userstate, message, self) {
     if (self) {return;}
@@ -71,12 +73,13 @@ class RanDumBot {
     if (message[0] == '!') {
       this.parseCommand(message.slice(1, message.length), userstate);
     } else {
-      this.logMessage(message, userstate.username);
+      this.logMessage(message, userstate['display-name']);
     }
   }
 
   /**
    * See {@link https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#join|tmijs Events: Join}
+   * @ignore
    */
   onJoin(channel, username, self) {
     if (!self) {
@@ -88,6 +91,7 @@ class RanDumBot {
 
   /**
    * See {@link https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#connect|tmijs Events: Connect}
+   * @ignore
    */
   onConnect(addr, port) {
     this.debugMsg(`Connected to ${addr}:${port}`);
@@ -118,6 +122,7 @@ class RanDumBot {
    *   consider it a private function.
    * @param {string} msg - user message
    * @pram {string} user - name of user who sent the message
+   * @ignore
    */
   logMessage(msg, user) {
     console.log(user.cyan + ': ' + msg);
@@ -134,6 +139,7 @@ class RanDumBot {
    *   {@link https://github.com/RanDumSocks/RanDumBot/wiki/Custom-Commands|Custom Commands}
    * @param {string[]} command - Array of command arguments
    * @param {object} userstate - Information on the user who sent the command
+   * @ignore
    */
   parseCommand(command, userstate) {
     // TODO: Custom command denoter
@@ -150,10 +156,10 @@ class RanDumBot {
       }
     });
 
-    for (var i = 0; i < commandMap.length; i += 1) {
-      if (argv[0] == commandMap[i][0]) {
+    for (var i = 0; i < this.commandMap.length; i += 1) {
+      if (argv[0] == this.commandMap[i][0]) {
         try {
-          commandMap[i][1].run(argc, argv, userstate, this);
+          this.commandMap[i][1].run(argc, argv, userstate, this);
         } catch (err) {
           this.debugMsg(err, 'Error', col.red);
         }
@@ -165,9 +171,27 @@ class RanDumBot {
   /**
    * Pushes message to the localhost client. Should not be called anywhere else,
    *   consider it a private function.
+   * @ignore
    */
   pushMessage(msg, user) {
     io.emit('drawMessage', { user: user, msg: msg });
+  }
+
+  /**
+   * A list of all avaliable commands and their functions in the form of
+   *   [[commandName, [functions]], ...]
+   */
+  get commandMap() {
+    return this.private_commandMap;
+  }
+
+  /**
+   * The tmijs client object. See
+   * {@link https://github.com/tmijs/docs/tree/gh-pages/_posts/v1.4.2|tmijs}
+   * For full documentation
+   */
+  get client() {
+    return this.private_client;
   }
 
 }
