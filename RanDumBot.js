@@ -7,6 +7,18 @@ var ios = require('socket.io');
 var tmi = require('tmi.js');
 var col = require('colors');
 
+// Create log file
+var d = new Date();
+var logName = (`${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}_${d.getHours()}${d.getMinutes()}${d.getSeconds()}`);
+if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
+
+// Load Commands
+var normalizedPath = require("path").join(__dirname, "commands");
+var commandMap = [];
+require("fs").readdirSync(normalizedPath).forEach(function(file) {
+  commandMap.push([file.slice(0, file.length - 3), require("./commands/" + file)]);
+});
+
 var app = express()
 
 var server = http.createServer(app);
@@ -48,13 +60,13 @@ function startBot() {
   // Called every time the bot connects to Twitch chat
   function onConnectedHandler(addr, port) {
     debugMsg(`Connected to ${addr}:${port}`);
-    debugMsg('Bot ' + col.cyan(process.env.BOT_USERNAME) + ' running on channel ' +
-             col.cyan(process.env.CHANNEL_NAME));
+    debugMsg('Bot ' + process.env.BOT_USERNAME + ' running on channel ' +
+             process.env.CHANNEL_NAME);
   }
 
   function onJoinHandler(channel, username, self) {
     if (!self) {
-      debugMsg(username.green + ' has joined channel ' + channel.slice(1, channel.length),
+      debugMsg(username + ' has joined channel ' + channel.slice(1, channel.length),
                'Join',
                col.green);
     }
@@ -62,10 +74,18 @@ function startBot() {
 
   function debugMsg(msg, info = 'Info', color = col.gray) {
     console.log('[' + color(info) + ']: ' + msg);
+    if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
+    fs.appendFile(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
+      if (err) throw err;
+    });
   }
 
   function logMessage(msg, user) {
     console.log(user.cyan + ': ' + msg);
+    if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
+    fs.appendFile(`./logs/${logName}.log`, user + ': ' + msg + '\n', function (err) {
+      if (err) throw err;
+    });
     pushMessage(msg, user);
   }
 
@@ -74,40 +94,25 @@ function startBot() {
     const argc = argv.length;
     var argContext = 0;
 
-    debugMsg(context.username + ': ' + argv, 'Command')
+    debugMsg(context.username + ': ' + argv, 'Command', col.blue)
 
     client.deletemessage(process.env.CHANNEL_NAME, context.id).catch((err) => {
-      debugMsg(err, 'Error', col.red)
+      if (err == 'bad_delete_message_broadcaster') {
+        // Ignore
+      } else {
+        debugMsg(err, 'Error', col.red);
+      }
     });
 
-    try {
-      switch(argv[0]) {
-        case 'randum':
-        case 'random':
-          var minNum = 0;
-          var maxNum = 100;
-          if (argc == 3) {
-            maxNum = parseInt(argv[2]);
-            minNum = parseInt(argv[1]);
-            if (minNum >= maxNum) { throw new Error('!random: bad range given') }
-          }
-          client.say(process.env.CHANNEL_NAME, (Math.floor(Math.random() * (maxNum - minNum)) + minNum + 1).toString());
-          break;
-        case 'help':
-          if (argc == 2) {
-            switch (argv[1]) {
-              case 'random':
-              case 'randum':
-                client.whisper(context.username, '!random x y: Pick a random number between x and y. Default x = 0, y = 100');
-                break;
-            }
-          } else {
-            client.whisper(context.username, '!random');
-          }
-          break;
+    for (var i = 0; i < commandMap.length; i += 1) {
+      if (argv[0] == commandMap[i][0]) {
+        try {
+          commandMap[i][1].run(argc, argv, client, context);
+        } catch (err) {
+          debugMsg(err, 'Error', col.red);
+        }
+        break;
       }
-    } catch (err) {
-      debugMsg(err, 'Error', col.red);
     }
   }
 
