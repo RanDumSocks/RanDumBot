@@ -18,3 +18,7 @@ exports.run = (argc, argv, userstate, RanDumBot) => {
     }
   });
 }
+
+exports.help = () => {
+  return '!uptime: Says current uptime of the steam';
+}
