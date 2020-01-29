@@ -142,8 +142,10 @@ class Text extends Object {
 }
 
 class ChatBubble extends Object {
-  constructor(content) {
+  constructor(content, parent) {
     super();
+    this.y = -1000;
+    this.parent = parent;
     this.fontSize = 30;
     this.font = 'Arial';
     c.font = this.fontSize.toString() + 'px ' + this.font;
@@ -163,6 +165,7 @@ class ChatBubble extends Object {
 
   draw() {
     c.fillStyle = 'cyan';
+    c.lineWidth = 5;
     roundRect(c,
               this.x + this.margin,
               this.y + this.margin,
@@ -175,6 +178,7 @@ class ChatBubble extends Object {
 
   update() {
     super.update();
+    this.y = this.parent.y;
     this.textElem.x = this.x + this.margin + this.padding[1];
     this.textElem.y = this.y + this.margin + this.padding[0];
   }
@@ -192,13 +196,15 @@ class ChatBar extends Object {
 
   update() {
     super.update();
+    this.y = canvas.height - this.chatHeight;
   }
 
   globalWindowResize() {}
 
   globalMessageReceived(msgs) {
+    console.log(this.y)
     for (var i = 0; i < msgs.length; i += 1) {
-      var bubble = new ChatBubble(msgs[i]);
+      var bubble = new ChatBubble(msgs[i], this);
       bubble.height = this.chatHeight;
     }
   }
