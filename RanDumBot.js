@@ -7,12 +7,13 @@ const express = require('express');
 const ios = require('socket.io');
 const tmi = require('tmi.js');
 const col = require('colors');
-const editJsonFile = require("edit-json-file");
+const eJson = require("edit-json-file");
 
 // Create log file & directory
 var d = new Date();
 var logName = (`${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}_${d.getHours()}${d.getMinutes()}${d.getSeconds()}`);
 if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
+if (!fs.existsSync('./data')) fs.mkdirSync('./data');
 
 // Start webserver
 var app = express()
@@ -20,6 +21,9 @@ var server = http.createServer(app);
 var io = ios.listen(server);
 server.listen(8080);
 app.use(express.static(__dirname));
+
+// Set to true for all functions to be synchonous
+var syncMode = false;
 
 /**
  * All purpose Twitch bot using tmijs.
@@ -59,6 +63,23 @@ class RanDumBot {
       {this.onConnect(addr, port)});
     this.client.on('join', (channel, username, self) =>
       {this.onJoin(channel, username, self)});
+    this.client.on('part', (channel, username, self) =>
+      {this.onPart(channel, username, self)});
+
+    // Handle exit
+    process.on('SIGINT', () => {
+      syncMode = true;
+      this.debugMsg('Exiting...');
+
+      // 'Leave' all current users
+      for (var i = this.currentViewers.length - 1; i >= 0; i--) {
+        this.userLeave(this.currentViewers[i]);
+      }
+      process.exit();
+    });
+
+    // Current viewers
+    this.private_currViewers = []
     
     this.client.connect();
   }
@@ -69,6 +90,8 @@ class RanDumBot {
    */
   onMessage(channel, userstate, message, self) {
     if (self) {return;}
+
+    this.userJoin(userstate.username);
 
     if (message[0] == '!') {
       this.parseCommand(message.slice(1, message.length), userstate);
@@ -83,9 +106,20 @@ class RanDumBot {
    */
   onJoin(channel, username, self) {
     if (!self) {
-      this.debugMsg(username + ' has joined channel ' + channel.slice(1, channel.length),
-                    'Join',
-                    col.green);
+      this.userJoin(username);
+    }
+  }
+
+  /**
+   * See {@link https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#part|tmijs Events: Part}
+   * @ignore
+   */
+  onPart(channel, username, self) {
+    if (!self) {
+      this.debugMsg(username + ' has left',
+                    'Part',
+                    col.yellow);
+      this.userLeave(username);
     }
   }
 
@@ -100,6 +134,51 @@ class RanDumBot {
   }
 
   /**
+   * Called when a user is seen on the channel in any way.
+   * @ignore
+   */
+  userJoin(username) {
+    var viewerIndex = (this.currentViewers.indexOf(username));
+    if (viewerIndex == -1) {
+      this.setUserData(username, 'last_time_update', Date.now());
+      this.private_currViewers.push(username);
+      this.debugMsg(username + ' has joined',
+                    'Join',
+                    col.green);
+    }
+  }
+
+  /**
+   * Called when a user leaves the channel or bot is shut down.
+   * @ignore
+   */
+  userLeave(username) {
+    var viewerIndex = (this.currentViewers.indexOf(username));
+    if (viewerIndex != -1) {
+      this.private_currViewers.splice(viewerIndex, 1);
+      this.updateUserTime(username);
+    } else {
+      this.debugMsg('User left without joining', 'Error', col.red);
+    }
+  }
+
+  /**
+   * Updates a user's total time spent on the channel.
+   * @ignore
+   */
+  updateUserTime(username) {
+    try {
+      var prevTime = parseInt(this.getUserData(username, 'total_time') || 0);
+      var lastUpdate = parseInt(this.getUserData(username, 'last_time_update'));
+      var currTime = Date.now().valueOf();
+      this.setUserData(username, 'total_time', prevTime + (currTime - lastUpdate));
+      this.setUserData(username, 'last_time_update', currTime);
+    } catch (err) {
+      this.debugMsg(err, 'Error', col.red);
+    }
+  }
+
+  /**
    * Outputs message to the console.
    * @param {string} msg - message to output
    * @param {string} [info] - message tag
@@ -107,14 +186,21 @@ class RanDumBot {
    *   {@link https://www.npmjs.com/package/colors|Colors}
    * @param {boolean} [verbose] - only outputs if verbose logging is on,
    *   always saves to log file reguardless
+   * @param {boolean} [sync] - Whether fline IO should be handled synchronously
    */
-  debugMsg(msg, info = 'Info', color = col.gray, verbose = false) {
+  debugMsg(msg, info = 'Info', color = col.gray, verbose = false, sync = syncMode) {
     // TODO: Implement verbose flag
     console.log('[' + color(info) + ']: ' + msg);
     // TODO: Add function to append files to log
-    fs.appendFile(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
-      if (err) throw err;
-    });
+    if (sync) {
+      fs.appendFileSync(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
+        if (err) throw err;
+      });
+    } else {
+      fs.appendFile(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
+        if (err) throw err;
+      });
+    }
   }
 
   /**
@@ -178,6 +264,29 @@ class RanDumBot {
   }
 
   /**
+   * Sets user's data as a key, value pair.
+   * @param {string} user - username of the data to set, NOT display name
+   * @param {string} key - key to change
+   * @param {*} value - value of the key
+   */
+  setUserData(user, key, value) {
+    var userFile = eJson(`${__dirname}/data/userData.json`);
+    userFile.set(`${user}.${key}`, value);
+    userFile.save();
+  }
+
+  /**
+   * Gets user's data value from given key.
+   * @param {string} user - username of the data to set, NOT display name
+   * @param {string} key - key to get value from
+   * @return {string} value fetched from key
+   */
+  getUserData(user, key) {
+    var userFile = eJson(`${__dirname}/data/userData.json`);
+    return userFile.get(`${user}.${key}`);
+  }
+
+  /**
    * A list of all avaliable commands and their functions in the form of
    *   [[commandName, [functions]], ...]
    */
@@ -192,6 +301,13 @@ class RanDumBot {
    */
   get client() {
     return this.private_client;
+  }
+
+  /**
+   * Array of current viewers on the channel
+   */
+  get currentViewers() {
+    return this.private_currViewers;
   }
 
 }
