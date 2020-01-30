@@ -36,9 +36,9 @@ Where `<bot>` is the username of the bot on Twitch and `<user>` is the username 
 
 In the end, your `.env` file should look like this:
 ```
-OAUTH_TOKEN=oauth:dxeyzl2p5lw1dqgqsvh3rdyab145cn
 BOT_USERNAME=randumbot
 CHANNEL_NAME=randumsocks
+OAUTH_TOKEN=oauth:dxeyzl2p5lw1dqgqsvh3rdyab145cn
 CLIENT_ID=m1r6hjh1pjckkayuw4shiyeh8sa4rh
 ```
 Save that and you should be good to go!
