@@ -1,3 +1,9 @@
+exports.cmdInfo = {
+  command_version: '1.0',
+  command_author: 'RanDumSocks',
+  bot_version: '0.1.1'
+}
+
 exports.run = (argc, argv, userstate) => {
   var minNum = 0;
   var maxNum = 100;

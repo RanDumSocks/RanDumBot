@@ -1,3 +1,9 @@
+exports.cmdInfo = {
+  command_version: '1.0',
+  command_author: 'RanDumSocks',
+  bot_version: '0.1.1'
+}
+
 exports.run = (argc, argv, userstate) => {
   this.RanDumBot.client.api({
     url: `https://api.twitch.tv/helix/streams?user_login=${process.env.CHANNEL_NAME}`,
@@ -20,5 +26,5 @@ exports.run = (argc, argv, userstate) => {
 }
 
 exports.help = () => {
-  return '!uptime: Says current uptime of the steam';
+  return '!uptime: Says current uptime of the stream';
 }

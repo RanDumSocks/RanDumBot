@@ -1,3 +1,6 @@
+// Bot Version
+const version = '0.1.1'
+
 // Packages
 require('dotenv').config()
 const http = require("http");
@@ -35,18 +38,35 @@ class RanDumBot {
    * See {@link https://github.com/RanDumSocks/RanDumBot/wiki#environment-variables|Environment Variables Setup}
    */
   constructor() {
-    // Load commands
+    this.debugMsg(`Thanks for using RanDumBot version (${version})`)
+    ///////////////////
+    // Load commands //
+    ///////////////////
     var normalizedPath = require("path").join(__dirname, "commands");
     var commandMapBuild = [];
     require("fs").readdirSync(normalizedPath).forEach( (file) => {
       var cmd = require("./commands/" + file);
       var cmdName = file.slice(0, file.length - 3);
+
+      // Check command version against bot
+      if (cmd.cmdInfo.bot_version != version) {
+        this.debugMsg(`Version mismatch, command "${cmdName}" made for` +
+                      ` version (${cmd.cmdInfo.bot_version})`, 'Error', col.red);
+      }
+
+      // Add command to bot
       commandMapBuild.push([cmdName, cmd]);
       cmd.data = new Object();
       cmd.RanDumBot = this;
+      this.debugMsg(`Loaded command "${cmdName}" ` +
+                    `version (${cmd.cmdInfo.command_version}) by ` +
+                    `${cmd.cmdInfo.command_author}`);
     });
     this.private_commandMap = commandMapBuild;
 
+    /////////////////
+    // Setup tmijs //
+    /////////////////
     const opts = {
       identity: {
         username: process.env.BOT_USERNAME,
@@ -93,7 +113,10 @@ class RanDumBot {
    * @ignore
    */
   onMessage(channel, userstate, message, self) {
-    if (self) {return;}
+    if (self) {
+      this.logMessage(message, 'BOT');
+      return;
+    }
 
     this.userJoin(userstate.username);
 
