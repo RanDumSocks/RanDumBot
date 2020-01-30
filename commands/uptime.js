@@ -1,7 +1,8 @@
 exports.cmdInfo = {
   command_version: '1.0',
   command_author: 'RanDumSocks',
-  bot_version: '0.1.1'
+  bot_version: '0.1.1',
+  description: 'Displays the uptime of the current steam'
 }
 
 exports.run = (argc, argv, userstate) => {

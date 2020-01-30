@@ -1,7 +1,9 @@
 exports.cmdInfo = {
   command_version: '1.0',
   command_author: 'RanDumSocks',
-  bot_version: '0.1.1'
+  bot_version: '0.1.1',
+  description: '!random [x] [y]: Picks a random number between x & y. ' +
+               'Default values are x=0, y=100'
 }
 
 exports.run = (argc, argv, userstate) => {
@@ -13,9 +15,4 @@ exports.run = (argc, argv, userstate) => {
     if (minNum >= maxNum) { throw '!random: bad range given' }
   }
   this.RanDumBot.client.say(process.env.CHANNEL_NAME, (Math.floor(Math.random() * (maxNum - minNum)) + minNum + 1).toString());
-}
-
-exports.help = () => {
-  return '!random [x] [y]: Picks a random number between x & y. ' +
-         'Default values are x=0, y=100';
 }
