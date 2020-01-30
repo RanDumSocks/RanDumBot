@@ -39,8 +39,11 @@ class RanDumBot {
     var normalizedPath = require("path").join(__dirname, "commands");
     var commandMapBuild = [];
     require("fs").readdirSync(normalizedPath).forEach( (file) => {
-      commandMapBuild.push([file.slice(0, file.length - 3),
-                           require("./commands/" + file)]);
+      var cmd = require("./commands/" + file);
+      var cmdName = file.slice(0, file.length - 3);
+      commandMapBuild.push([cmdName, cmd]);
+      cmd.data = new Object();
+      cmd.RanDumBot = this;
     });
     this.private_commandMap = commandMapBuild;
 
@@ -69,12 +72,13 @@ class RanDumBot {
     // Handle exit
     process.on('SIGINT', () => {
       syncMode = true;
-      this.debugMsg('Exiting...');
-
+      this.debugMsg('Shutting down...');
+      this.debugMsg('Logging out all users...');
       // 'Leave' all current users
       for (var i = this.currentViewers.length - 1; i >= 0; i--) {
         this.userLeave(this.currentViewers[i]);
       }
+      this.debugMsg('Exiting...');
       process.exit();
     });
 
@@ -245,7 +249,7 @@ class RanDumBot {
     for (var i = 0; i < this.commandMap.length; i += 1) {
       if (argv[0] == this.commandMap[i][0]) {
         try {
-          this.commandMap[i][1].run(argc, argv, userstate, this);
+          this.commandMap[i][1].run(argc, argv, userstate);
         } catch (err) {
           this.debugMsg(err, 'Error', col.red);
         }

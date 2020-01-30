@@ -1,15 +1,15 @@
-exports.run = (argc, argv, userstate, RanDumBot) => {
+exports.run = (argc, argv, userstate) => {
   if (argc == 1) {
     var commandString = 'Commands: ';
-    for (var i = 0; i < RanDumBot.commandMap.length; i += 1) {
-      commandString += '!' + RanDumBot.commandMap[i][0] + ', ';
+    for (var i = 0; i < this.RanDumBot.commandMap.length; i += 1) {
+      commandString += '!' + this.RanDumBot.commandMap[i][0] + ', ';
     }
-    RanDumBot.client.whisper(userstate.username, commandString);
+    this.RanDumBot.client.whisper(userstate.username, commandString);
   } else if (argc == 2) {
-    for (var i = 0; i < RanDumBot.commandMap.length; i += 1) {
-      if (RanDumBot.commandMap[i][0] == argv[1]) {
-        RanDumBot.client.whisper(userstate.username,
-                                 RanDumBot.commandMap[i][1].help());
+    for (var i = 0; i < this.RanDumBot.commandMap.length; i += 1) {
+      if (this.RanDumBot.commandMap[i][0] == argv[1]) {
+        this.RanDumBot.client.whisper(userstate.username,
+                                 this.RanDumBot.commandMap[i][1].help());
         break;
       }
     }
