@@ -1,5 +1,7 @@
 // Bot Version
 const version = '0.1.1'
+
+// Settings
 const overlayPort = 8084;
 
 // Packages
