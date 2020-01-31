@@ -2,7 +2,7 @@
 const version = '0.1.1'
 
 // Packages
-require('dotenv').config()
+require('dotenv').config();
 const http = require("http");
 const url = require("url");  
 const fs = require('fs');
@@ -113,6 +113,10 @@ class RanDumBot {
 
     // Current viewers
     this.private_currViewers = []
+
+    this.deltaTime = 0;
+    this.lastTimeUpdate = Date.now();
+    this.update();
     
     this.client.connect();
   }
@@ -284,8 +288,8 @@ class RanDumBot {
           var cmd = this.commandMap[i][1];
           var lastUsed = cmd.data.last_used || 0;
           cmd.data.last_used = Date.now();
-          var cmdTimeout = (cmd.cmdOptions ? cmd.cmdOptions.command_timeout : 0) || 0;
-          if (lastUsed + cmdTimeout <= Date.now()) {
+          var cmdCooldown = (cmd.cmdOptions ? cmd.cmdOptions.command_cooldown : 0) || 0;
+          if (lastUsed + cmdCooldown <= Date.now()) {
             cmd.run(argc, argv, userstate);
           }
         } catch (err) {
@@ -303,6 +307,14 @@ class RanDumBot {
    */
   pushMessage(msg, user) {
     io.emit('drawMessage', { user: user, msg: msg });
+  }
+
+  update() {
+    setTimeout(() => {
+      this.update();
+    }, 1000);
+    this.deltaTime = Date.now() - this.lastTimeUpdate;
+    this.lastTimeUpdate = Date.now();
   }
 
   /**

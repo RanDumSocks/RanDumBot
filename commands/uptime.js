@@ -6,7 +6,7 @@ exports.cmdInfo = {
 }
 
 exports.cmdOptions = {
-  command_timeout: 10000,
+  command_cooldown: 10000,
 }
 
 exports.run = (argc, argv, userstate) => {
