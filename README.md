@@ -1,6 +1,7 @@
 # RanDumBot
 Simple, fully customizable Twitch bot using nodejs and tmijs.
-Documentation is a WIP, very bare bones at the moment.
+
+Want to learn how to help development or add your own commands or functions?  Head over to the [Wiki](https://github.com/RanDumSocks/RanDumBot/wiki)!
 
 ## Installation Instructions
 This bot uses your own Twitch account as the bot itself. It is recommended you create a new account for the bot on Twitch. This will be inportant for setting-up your environment variables.
