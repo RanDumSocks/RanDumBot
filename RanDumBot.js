@@ -1,5 +1,6 @@
 // Bot Version
 const version = '0.1.1'
+const overlayPort = 8084;
 
 // Packages
 require('dotenv').config();
@@ -22,7 +23,7 @@ if (!fs.existsSync('./data')) fs.mkdirSync('./data');
 var app = express()
 var server = http.createServer(app);
 var io = ios.listen(server);
-server.listen(8080);
+server.listen(overlayPort);
 app.use(express.static(__dirname));
 
 // Set to true for all functions to be synchonous
@@ -45,8 +46,11 @@ class RanDumBot {
     var normalizedPath = require("path").join(__dirname, "commands");
     var commandMapBuild = [];
     require("fs").readdirSync(normalizedPath).forEach( (file) => {
+      // Get command module & name
       var cmd = require("./commands/" + file);
       var cmdName = file.slice(0, file.length - 3);
+      var altName = this.getCmdInfo(cmd, 'command_name');
+      if (altName) { cmdName = altName };
 
       // Check command version against bot
       if (cmd.cmdInfo.bot_version != version) {
@@ -338,6 +342,14 @@ class RanDumBot {
   getUserData(user, key) {
     var userFile = eJson(`${__dirname}/data/userData.json`);
     return userFile.get(`${user}.${key}`);
+  }
+
+  getCmdInfo(cmd, key) {
+    if (cmd.cmdInfo) {
+      return cmd.cmdInfo[key]
+    } else {
+      return undefined;
+    }
   }
 
   /**

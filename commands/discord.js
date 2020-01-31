@@ -2,6 +2,7 @@ exports.cmdInfo = {
   command_version: '1.0',
   command_author: 'RanDumSocks',
   bot_version: '0.1.1',
+  command_name: 'discord',
   description: 'Displays broadcaster Discord link'
 }
 
