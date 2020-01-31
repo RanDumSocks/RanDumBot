@@ -281,6 +281,7 @@ class RanDumBot {
     for (var i = 0; i < this.commandMap.length; i += 1) {
       if (argv[0] == this.commandMap[i][0]) {
         try {
+          this.commandMap[i][1].data.last_used = Date.now();
           this.commandMap[i][1].run(argc, argv, userstate);
         } catch (err) {
           this.debugMsg(err, 'Error', col.red);
