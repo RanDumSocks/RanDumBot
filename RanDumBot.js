@@ -39,6 +39,7 @@ class RanDumBot {
    * Sets up tmijs client.
    * Must have valid environment variables.
    * See {@link https://github.com/RanDumSocks/RanDumBot/wiki#environment-variables|Environment Variables Setup}
+   * @ignore
    */
   constructor() {
     this.debugMsg(`Thanks for using RanDumBot version (${version})`)
@@ -95,8 +96,8 @@ class RanDumBot {
     this.private_client = new tmi.client(opts);
 
     // Client listeners
-    this.client.on('message', (channel, userstate, message, self) =>
-      {this.onMessage(channel, userstate, message, self)});
+    this.client.on('chat', (channel, userstate, message, self) =>
+      {this.onChat(channel, userstate, message, self)});
     this.client.on('connected', (addr, port) =>
       {this.onConnect(addr, port)});
     this.client.on('join', (channel, username, self) =>
@@ -131,7 +132,7 @@ class RanDumBot {
    * See {@link https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#message|tmijs Events: Message}
    * @ignore
    */
-  onMessage(channel, userstate, message, self) {
+  onChat(channel, userstate, message, self) {
     if (self) {
       this.logMessage(message, 'BOT');
       return;

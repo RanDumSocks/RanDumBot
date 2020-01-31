@@ -6,10 +6,9 @@ exports.cmdInfo = {
   description: 'Displays a list of avaliable commands. Can be used as ' +
                '"!help [command]" to view help for a specific command',
   aliases: ['h']
-}
+};
 
 exports.run = (argc, argv, userstate) => {
-  console.log(this.data.last_used)
   if (argc == 1) {
     var commandString = 'Commands: ';
     for (var i = 0; i < this.RanDumBot.commandMap.length; i += 1) {
