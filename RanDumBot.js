@@ -61,6 +61,15 @@ class RanDumBot {
       this.debugMsg(`Loaded command "${cmdName}" ` +
                     `version (${cmd.cmdInfo.command_version}) by ` +
                     `${cmd.cmdInfo.command_author}`);
+
+      // Add aliases
+      var aliases = cmd.cmdInfo.aliases;
+      if (aliases) {
+        for (var i = aliases.length - 1; i >= 0; i--) {
+          cmdName = aliases[i];
+          commandMapBuild.push([cmdName, cmd]);
+        }
+      }
     });
     this.private_commandMap = commandMapBuild;
 

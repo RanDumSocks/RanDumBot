@@ -4,7 +4,8 @@ exports.cmdInfo = {
   bot_version: '0.1.1',
   command_arguments: [ ['x', 'Min number'], ['y', 'Max number'] ],
   description: 'Displays a list of avaliable commands. Can be used as ' +
-                '"!help <command>" to view help for a specific command'
+                '"!help <command>" to view help for a specific command',
+  aliases: ['h']
 }
 
 exports.run = (argc, argv, userstate) => {
