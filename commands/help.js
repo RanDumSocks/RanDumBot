@@ -2,9 +2,9 @@ exports.cmdInfo = {
   command_version: '1.0',
   command_author: 'RanDumSocks',
   bot_version: '0.1.1',
-  command_arguments: [ ['x', 'Min number'], ['y', 'Max number'] ],
+  command_arguments: [ 'command' ],
   description: 'Displays a list of avaliable commands. Can be used as ' +
-                '"!help <command>" to view help for a specific command',
+               '"!help [command]" to view help for a specific command',
   aliases: ['h']
 }
 
@@ -24,7 +24,7 @@ exports.run = (argc, argv, userstate) => {
         var commandArguments = command.cmdInfo.command_arguments;
         var commandNameFormat = '!' + commandName;
         for (var i = 0; i < commandArguments.length; i++) {
-          commandNameFormat += ` [${commandArguments[i][0]}](${commandArguments[i][1]})`
+          commandNameFormat += ` [${commandArguments[i]}]`
         }
 
         this.RanDumBot.client.say(process.env.CHANNEL_NAME,
