@@ -281,8 +281,13 @@ class RanDumBot {
     for (var i = 0; i < this.commandMap.length; i += 1) {
       if (argv[0] == this.commandMap[i][0]) {
         try {
-          this.commandMap[i][1].data.last_used = Date.now();
-          this.commandMap[i][1].run(argc, argv, userstate);
+          var cmd = this.commandMap[i][1];
+          var lastUsed = cmd.data.last_used || 0;
+          cmd.data.last_used = Date.now();
+          var cmdTimeout = (cmd.cmdOptions ? cmd.cmdOptions.command_timeout : 0) || 0;
+          if (lastUsed + cmdTimeout <= Date.now()) {
+            cmd.run(argc, argv, userstate);
+          }
         } catch (err) {
           this.debugMsg(err, 'Error', col.red);
         }

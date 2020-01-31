@@ -5,6 +5,10 @@ exports.cmdInfo = {
   description: 'Displays the uptime of the current steam'
 }
 
+exports.cmdOptions = {
+  command_timeout: 10000,
+}
+
 exports.run = (argc, argv, userstate) => {
   this.RanDumBot.client.api({
     url: `https://api.twitch.tv/helix/streams?user_login=${process.env.CHANNEL_NAME}`,

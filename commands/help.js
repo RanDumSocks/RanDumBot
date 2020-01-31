@@ -9,6 +9,7 @@ exports.cmdInfo = {
 }
 
 exports.run = (argc, argv, userstate) => {
+  console.log(this.data.last_used)
   if (argc == 1) {
     var commandString = 'Commands: ';
     for (var i = 0; i < this.RanDumBot.commandMap.length; i += 1) {
