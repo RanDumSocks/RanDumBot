@@ -5,7 +5,7 @@ exports.cmdInfo = {
   command_arguments: [ 'command' ],
   description: 'Displays a list of avaliable commands. Can be used as ' +
                '"!help [command]" to view help for a specific command',
-  aliases: ['h']
+  aliases: ['h'],
 };
 
 exports.run = (argc, argv, userstate) => {
