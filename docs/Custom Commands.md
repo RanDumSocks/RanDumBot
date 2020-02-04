@@ -47,3 +47,31 @@ This contains a lot of useful information about the user who sent the message. H
   'message-type': 'chat'
 }
 ```
+## cmdInfo
+Each command has a `cmdInfo` object which tells RanDumBot more information about the command to help with loading. By default, everything is set to `undefined`. You can technically load a command without `cmdInfo` just fine, however you may get some warnings. This should be located somewhere in your `<command>.js` file and looks something like this:
+```javascript
+exports.cmdInfo = {
+  command_version: '1.0',
+  command_author: 'me',
+  bot_version: '0.1.2',
+  description: 'This is a description
+};
+```
+Here are all the availiable properties and their purposes:
+
+| Property Name | Type | Description |
+| --- | --- | --- |
+| command_version | `string` | Version of this command. Not used anywhere except displaying in the console when command is loaded. |
+| command_author | `string` | Name of the creator of the command. Not used anywhere except displaying in the console when command is loaded. |
+| bot_version | `string` | Version of RanDumBot this command was created for. If this is mismatched from the bot version it is running on, a warning will display upon load. |
+| command_arguments | `string[]` | If a command takes in arguments from the user, the argument titles should be listed here. This is used in the default 'help' command to display a command's arguments. |
+| command_name | `string` | The name used to call this command. By default, commands are given the name of the `.js` file. This overwrites that name. |
+| description | `string` | Description of the usage of this command. Used in the default 'help' command to display the description. |
+| aliases | `string[]` | A list of other names for this command. Calling any one of these, including the command's name, will  call this command. |
+
+## cmdOptions
+Same setup as `cmdInfo`, however these affect the behavior of the command itself.
+
+| Property Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| command_cooldown | `number` | `0` | Measured in milliseconds, time before this command can be used again by anyone. |
