@@ -54,7 +54,6 @@ class RanDumBot {
    * Sets up tmijs client.
    * Must have valid environment variables.
    * See {@link https://github.com/RanDumSocks/RanDumBot/wiki#environment-variables|Environment Variables Setup}
-   * @ignore
    */
   constructor() {
     this.debugMsg(`Thanks for using RanDumBot version (${version})`);
