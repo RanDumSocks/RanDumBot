@@ -1,5 +1,5 @@
 // Bot Version
-const version = '0.1.1'
+const version = '0.1.2'
 
 // Settings
 const overlayPort = 8084;
@@ -20,6 +20,21 @@ var d = new Date();
 var logName = (`${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}_${d.getHours()}${d.getMinutes()}${d.getSeconds()}`);
 if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
 if (!fs.existsSync('./data')) fs.mkdirSync('./data');
+
+// Default command objects
+var default_cmdInfo = {
+  command_version: undefined,
+  command_author: undefined,
+  bot_version: undefined,
+  command_arguments: undefined,
+  command_name: undefined,
+  description: undefined,
+  aliases: undefined
+};
+
+var default_cmdOptions = {
+  command_cooldown: 0,
+}
 
 // Start webserver
 var app = express()
@@ -42,7 +57,8 @@ class RanDumBot {
    * @ignore
    */
   constructor() {
-    this.debugMsg(`Thanks for using RanDumBot version (${version})`)
+    this.debugMsg(`Thanks for using RanDumBot version (${version})`);
+    this.debugMsg(`Check out the developer's discord: https://discord.gg/WC5DQ24`);
     ///////////////////
     // Load commands //
     ///////////////////
@@ -52,7 +68,13 @@ class RanDumBot {
       // Get command module & name
       var cmd = require("./commands/" + file);
       var cmdName = file.slice(0, file.length - 3);
-      var altName = this.getCmdInfo(cmd, 'command_name');
+
+      // Set defaults
+      cmd.cmdInfo = {...default_cmdInfo, ...cmd.cmdInfo};
+      cmd.cmdOptions = {...default_cmdOptions, ...cmd.cmdOptions};
+
+      // Update commandName
+      var altName = cmd.cmdInfo.command_name;
       if (altName) { cmdName = altName };
 
       // Check command version against bot
@@ -345,14 +367,6 @@ class RanDumBot {
   getUserData(user, key) {
     var userFile = eJson(`${__dirname}/data/userData.json`);
     return userFile.get(`${user}.${key}`);
-  }
-
-  getCmdInfo(cmd, key) {
-    if (cmd.cmdInfo) {
-      return cmd.cmdInfo[key]
-    } else {
-      return undefined;
-    }
   }
 
   /**

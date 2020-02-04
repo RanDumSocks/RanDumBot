@@ -1,7 +1,7 @@
 exports.cmdInfo = {
   command_version: '1.0',
   command_author: 'RanDumSocks',
-  bot_version: '0.1.1',
+  bot_version: '0.1.2',
   command_arguments: [ 'command' ],
   description: 'Displays a list of avaliable commands. Can be used as ' +
                '"!help [command]" to view help for a specific command',

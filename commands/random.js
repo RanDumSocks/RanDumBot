@@ -1,7 +1,7 @@
 exports.cmdInfo = {
   command_version: '1.0',
   command_author: 'RanDumSocks',
-  bot_version: '0.1.1',
+  bot_version: '0.1.2',
   command_arguments: [ 'x', 'y' ],
   description: 'Picks a random number between x & y. ' +
                'Default values are x=0, y=100'
