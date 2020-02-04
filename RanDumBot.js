@@ -80,7 +80,7 @@ class RanDumBot {
       // Check command version against bot
       if (cmd.cmdInfo.bot_version != version) {
         this.debugMsg(`Version mismatch, command "${cmdName}" made for` +
-                      ` version (${cmd.cmdInfo.bot_version})`, 'Error', col.red);
+                      ` version (${cmd.cmdInfo.bot_version})`, 'Warn', col.yellow);
       }
 
       // Add command to bot
