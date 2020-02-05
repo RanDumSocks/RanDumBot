@@ -368,6 +368,10 @@ class RanDumBot {
     return userFile.get(`${user}.${key}`);
   }
 
+  say(msg) {
+    this.client.say(process.env.CHANNEL_NAME, msg);
+  }
+
   /**
    * A list of all avaliable commands and their functions in the form of
    *   [[commandName, [functions]], ...]
