@@ -246,6 +246,11 @@ class RanDumBot {
     }
   }
 
+  getUserWatchtime(username) {
+    this.updateUserTime(username);
+    return this.getUserData(username, 'total_time');
+  }
+
   /**
    * Outputs message to the console.
    * @param {string} msg - message to output
