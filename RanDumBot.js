@@ -1,9 +1,6 @@
 // Bot Version
 const version = '0.1.2'
 
-// Settings
-const overlayPort = 8084;
-
 // Packages
 require('dotenv').config();
 const http = require("http");
@@ -14,6 +11,14 @@ const ios = require('socket.io');
 const tmi = require('tmi.js');
 const col = require('colors');
 const eJson = require("edit-json-file");
+
+// Load settings
+var defaultOptionsFile = eJson(`${__dirname}/default_options.json`);
+var userOptionsFile = eJson(`${__dirname}/options.json`);
+optionsFile = {...defaultOptionsFile.toObject(), ...userOptionsFile.toObject()};
+console.log(optionsFile);
+
+var overlayPort = optionsFile.overlay_port;
 
 // Create log file & directory
 var d = new Date();
