@@ -107,6 +107,18 @@ class RanDumBot {
     this.private_commandMap = commandMapBuild;
 
     /////////////////
+    // Load Timers //
+    /////////////////
+    var normalizedPath = require("path").join(__dirname, "timers");
+    var timerMapBuild = [];
+    require("fs").readdirSync(normalizedPath).forEach( (file) => {
+      var timer = require("./timers/" + file);
+      timer.RanDumBot = this;
+      timerMapBuild.push(timer);
+    });
+    this.private_timerMap = timerMapBuild;
+
+    /////////////////
     // Setup tmijs //
     /////////////////
     const opts = {
@@ -353,6 +365,10 @@ class RanDumBot {
     }, 1000);
     this.deltaTime = Date.now() - this.lastTimeUpdate;
     this.lastTimeUpdate = Date.now();
+
+    for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
+      this.private_timerMap[i].run(this.deltaTime);
+    }
   }
 
   /**
