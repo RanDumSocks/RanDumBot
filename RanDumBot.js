@@ -116,6 +116,8 @@ class RanDumBot {
     var timerMapBuild = [];
     require("fs").readdirSync(normalizedPath).forEach( (file) => {
       var timer = require("./timers/" + file);
+      timer.update = timerUpdate;
+      console.log(timer);
       timer.RanDumBot = this;
       timerMapBuild.push(timer);
     });
@@ -372,12 +374,12 @@ class RanDumBot {
   update() {
     setTimeout(() => {
       this.update();
-    }, 1000);
+    }, options.update_interval);
     this.deltaTime = Date.now() - this.lastTimeUpdate;
     this.lastTimeUpdate = Date.now();
 
     for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
-      this.private_timerMap[i].run(this.deltaTime);
+      this.private_timerMap[i].update(this.deltaTime);
     }
   }
 
@@ -432,6 +434,10 @@ class RanDumBot {
     return this.private_currViewers;
   }
 
+}
+
+function timerUpdate(deltaTime) {
+  console.log(this.data);
 }
 
 new RanDumBot();
