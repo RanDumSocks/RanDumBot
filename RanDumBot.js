@@ -98,6 +98,7 @@ class RanDumBot {
 
       // Add aliases
       var aliases = cmd.cmdInfo.aliases;
+      cmd.cmdInfo.isAlias = true;
       if (aliases) {
         for (var i = aliases.length - 1; i >= 0; i--) {
           cmdName = aliases[i];
