@@ -16,7 +16,6 @@ const eJson = require("edit-json-file");
 var defaultOptionsFile = eJson(`${__dirname}/default_options.json`);
 var userOptionsFile = eJson(`${__dirname}/options.json`);
 optionsFile = {...defaultOptionsFile.toObject(), ...userOptionsFile.toObject()};
-console.log(optionsFile);
 
 var overlayPort = optionsFile.overlay_port;
 
