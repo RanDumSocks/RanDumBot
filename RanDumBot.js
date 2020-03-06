@@ -11,13 +11,14 @@ const ios = require('socket.io');
 const tmi = require('tmi.js');
 const col = require('colors');
 const eJson = require("edit-json-file");
+const opn = require('opn');
 
 // Load settings
 var defaultOptionsFile = eJson(`${__dirname}/default_options.json`);
 var userOptionsFile = eJson(`${__dirname}/options.json`);
-optionsFile = {...defaultOptionsFile.toObject(), ...userOptionsFile.toObject()};
+var options = {...defaultOptionsFile.toObject(), ...userOptionsFile.toObject()};
 
-var overlayPort = optionsFile.overlay_port;
+var overlayPort = options.overlay_port;
 
 // Create log file & directory
 var d = new Date();
@@ -144,6 +145,11 @@ class RanDumBot {
       {this.onJoin(channel, username, self)});
     this.client.on('part', (channel, username, self) =>
       {this.onPart(channel, username, self)});
+
+    // Misc setup
+    if (options.open_chat) opn(`https://dashboard.twitch.tv/popout/u/` +
+                               `${process.env.CHANNEL_NAME}` +
+                               `/stream-manager/chat`);
 
     // Handle exit
     process.on('SIGINT', () => {

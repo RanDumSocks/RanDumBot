@@ -1,3 +1,4 @@
 {
-  "overlay_port": 8080
+  "overlay_port": 8080,
+  "open_chat": false
 }
