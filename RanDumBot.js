@@ -41,6 +41,11 @@ var default_cmdOptions = {
   command_cooldown: 0,
 }
 
+// Default timer objects
+var default_timerOptions = {
+  interval: Number.MAX_VALUE,
+}
+
 // Start webserver
 var app = express()
 var server = http.createServer(app);
@@ -116,8 +121,11 @@ class RanDumBot {
     var timerMapBuild = [];
     require("fs").readdirSync(normalizedPath).forEach( (file) => {
       var timer = require("./timers/" + file);
+      timer.options = {...default_timerOptions, ...timer.options};
       timer.update = timerUpdate;
-      console.log(timer);
+      timer.data = new Object();
+      timer.data.lastCall = Date.now();
+      timer.data.counter = 0;
       timer.RanDumBot = this;
       timerMapBuild.push(timer);
     });
@@ -375,11 +383,9 @@ class RanDumBot {
     setTimeout(() => {
       this.update();
     }, options.update_interval);
-    this.deltaTime = Date.now() - this.lastTimeUpdate;
-    this.lastTimeUpdate = Date.now();
 
     for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
-      this.private_timerMap[i].update(this.deltaTime);
+      this.private_timerMap[i].update();
     }
   }
 
@@ -436,8 +442,22 @@ class RanDumBot {
 
 }
 
-function timerUpdate(deltaTime) {
-  console.log(this.data);
+/**
+ * Default update function for timers. This gets called every update tick for
+ * each timer. Can be overridden, but may have unexpected results. Is named
+ * update() in timer functions. Calls the run() function once the interval
+ * threshold has been reached.
+ */
+function timerUpdate() {
+  var deltaTime = Date.now() - this.data.lastCall;
+  this.data.lastCall = Date.now();
+
+  this.data.counter += deltaTime;
+
+  if (this.data.counter >= this.options.interval) {
+    this.data.counter -= this.options.interval;
+    this.run();
+  }
 }
 
 new RanDumBot();

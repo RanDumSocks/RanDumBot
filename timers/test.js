@@ -1,12 +1,7 @@
-exports.data = {
-  value: 0
+exports.options = {
+  interval: 5000,
 }
 
-exports.run = (deltaTime) => {
-  this.data.value += deltaTime;
-
-  if (this.data.value >= 5000) {
-    //console.log(deltaTime);
-    this.data.value = 0;
-  }
+exports.run = () => {
+  console.log('Yes');
 }
