@@ -98,7 +98,7 @@ class RanDumBot {
       commandMapBuild.push([cmdName, cmd]);
       cmd.data = new Object();
       cmd.data.last_run = 0;
-      cmd.data.times_used = 0;
+      cmd.data.times_run = 0;
       cmd.RanDumBot = this;
       this.debugMsg(`Loaded command "${cmdName}" ` +
                     `version (${cmd.cmdInfo.command_version}) by ` +
@@ -106,7 +106,7 @@ class RanDumBot {
 
       // Add aliases
       var aliases = cmd.cmdInfo.aliases;
-      cmd.cmdInfo.isAlias = true;
+      cmd.data.isAlias = true;
       if (aliases) {
         for (var i = aliases.length - 1; i >= 0; i--) {
           cmdName = aliases[i];
@@ -365,7 +365,7 @@ class RanDumBot {
           cmd.data.last_used = Date.now();
           var cmdCooldown = (cmd.cmdOptions ? cmd.cmdOptions.command_cooldown : 0) || 0;
           if (lastUsed + cmdCooldown <= Date.now()) {
-            cmd.data.times_used += 1;
+            cmd.data.times_run += 1;
             cmd.run(argc, argv, userstate);
             cmd.data.last_run = Date.now();
           }
