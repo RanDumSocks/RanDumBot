@@ -1,5 +1,5 @@
 // Bot Version
-const version = '0.1.2'
+const version = '0.2.0'
 
 // Packages
 require('dotenv').config();
@@ -25,6 +25,7 @@ var d = new Date();
 var logName = (`${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}_${d.getHours()}${d.getMinutes()}${d.getSeconds()}`);
 if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
 if (!fs.existsSync('./data')) fs.mkdirSync('./data');
+if (!fs.existsSync('./timers')) fs.mkdirSync('./timers');
 
 // Default command objects
 var default_cmdInfo = {
@@ -68,6 +69,7 @@ class RanDumBot {
   constructor() {
     this.debugMsg(`Thanks for using RanDumBot version (${version})`);
     this.debugMsg(`Check out the developer's discord: https://discord.gg/WC5DQ24`);
+
     ///////////////////
     // Load commands //
     ///////////////////
@@ -281,6 +283,11 @@ class RanDumBot {
     }
   }
 
+  /**
+   * Gets a user's total watchtime on the channel.
+   * @param  {string} username username of watchtime to get
+   * @return {number}          total watchtime in milliseconds
+   */
   getUserWatchtime(username) {
     this.updateUserTime(username);
     return this.getUserData(username, 'total_time');
@@ -379,6 +386,10 @@ class RanDumBot {
     io.emit('drawMessage', { user: user, msg: msg });
   }
 
+  /**
+   * Continuous bot update function. Runs at a regular interval accoring to the
+   * `update_interval` option
+   */
   update() {
     setTimeout(() => {
       this.update();
@@ -412,6 +423,10 @@ class RanDumBot {
     return userFile.get(`${user}.${key}`);
   }
 
+  /**
+   * Send a message to chat.
+   * @param  {string} msg message to send
+   */
   say(msg) {
     this.client.say(process.env.CHANNEL_NAME, msg);
   }
