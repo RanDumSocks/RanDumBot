@@ -10,9 +10,12 @@ All purpose Twitch bot using tmijs.
     * [.commandMap](#RanDumBot+commandMap)
     * [.client](#RanDumBot+client)
     * [.currentViewers](#RanDumBot+currentViewers)
+    * [.getUserWatchtime(username)](#RanDumBot+getUserWatchtime) ⇒ <code>number</code>
     * [.debugMsg(msg, [info], [color], [verbose], [sync])](#RanDumBot+debugMsg)
+    * [.update()](#RanDumBot+update)
     * [.setUserData(user, key, value)](#RanDumBot+setUserData)
     * [.getUserData(user, key)](#RanDumBot+getUserData) ⇒ <code>string</code>
+    * [.say(msg)](#RanDumBot+say)
 
 <a name="new_RanDumBot_new"></a>
 
@@ -42,6 +45,18 @@ For full documentation
 Array of current viewers on the channel
 
 **Kind**: instance property of [<code>RanDumBot</code>](#RanDumBot)  
+<a name="RanDumBot+getUserWatchtime"></a>
+
+### ranDumBot.getUserWatchtime(username) ⇒ <code>number</code>
+Gets a user's total watchtime on the channel.
+
+**Kind**: instance method of [<code>RanDumBot</code>](#RanDumBot)  
+**Returns**: <code>number</code> - total watchtime in milliseconds  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| username | <code>string</code> | username of watchtime to get |
+
 <a name="RanDumBot+debugMsg"></a>
 
 ### ranDumBot.debugMsg(msg, [info], [color], [verbose], [sync])
@@ -57,6 +72,13 @@ Outputs message to the console.
 | [verbose] | <code>boolean</code> | <code>false</code> | only outputs if verbose logging is on,   always saves to log file reguardless |
 | [sync] | <code>boolean</code> |  | Whether fline IO should be handled synchronously |
 
+<a name="RanDumBot+update"></a>
+
+### ranDumBot.update()
+Continuous bot update function. Runs at a regular interval accoring to the
+`update_interval` option
+
+**Kind**: instance method of [<code>RanDumBot</code>](#RanDumBot)  
 <a name="RanDumBot+setUserData"></a>
 
 ### ranDumBot.setUserData(user, key, value)
@@ -82,4 +104,15 @@ Gets user's data value from given key.
 | --- | --- | --- |
 | user | <code>string</code> | username of the data to set, NOT display name |
 | key | <code>string</code> | key to get value from |
+
+<a name="RanDumBot+say"></a>
+
+### ranDumBot.say(msg)
+Send a message to chat.
+
+**Kind**: instance method of [<code>RanDumBot</code>](#RanDumBot)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| msg | <code>string</code> | message to send |
 

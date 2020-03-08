@@ -3,3 +3,5 @@
 /logs
 /data
 /commands/p_*
+/timers/p_*
+/options.json

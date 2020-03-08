@@ -1,8 +1,5 @@
 // Bot Version
-const version = '0.1.2'
-
-// Settings
-const overlayPort = 8084;
+const version = '0.2.0'
 
 // Packages
 require('dotenv').config();
@@ -14,12 +11,21 @@ const ios = require('socket.io');
 const tmi = require('tmi.js');
 const col = require('colors');
 const eJson = require("edit-json-file");
+const opn = require('opn');
+
+// Load settings
+var defaultOptionsFile = eJson(`${__dirname}/default_options.json`);
+var userOptionsFile = eJson(`${__dirname}/options.json`);
+var options = {...defaultOptionsFile.toObject(), ...userOptionsFile.toObject()};
+
+var overlayPort = options.overlay_port;
 
 // Create log file & directory
 var d = new Date();
 var logName = (`${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}_${d.getHours()}${d.getMinutes()}${d.getSeconds()}`);
 if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
 if (!fs.existsSync('./data')) fs.mkdirSync('./data');
+if (!fs.existsSync('./timers')) fs.mkdirSync('./timers');
 
 // Default command objects
 var default_cmdInfo = {
@@ -34,6 +40,11 @@ var default_cmdInfo = {
 
 var default_cmdOptions = {
   command_cooldown: 0,
+}
+
+// Default timer objects
+var default_timerOptions = {
+  interval: Number.MAX_VALUE,
 }
 
 // Start webserver
@@ -58,6 +69,7 @@ class RanDumBot {
   constructor() {
     this.debugMsg(`Thanks for using RanDumBot version (${version})`);
     this.debugMsg(`Check out the developer's discord: https://discord.gg/WC5DQ24`);
+
     ///////////////////
     // Load commands //
     ///////////////////
@@ -85,6 +97,8 @@ class RanDumBot {
       // Add command to bot
       commandMapBuild.push([cmdName, cmd]);
       cmd.data = new Object();
+      cmd.data.last_run = 0;
+      cmd.data.times_run = 0;
       cmd.RanDumBot = this;
       this.debugMsg(`Loaded command "${cmdName}" ` +
                     `version (${cmd.cmdInfo.command_version}) by ` +
@@ -92,6 +106,7 @@ class RanDumBot {
 
       // Add aliases
       var aliases = cmd.cmdInfo.aliases;
+      cmd.data.is_alias = true;
       if (aliases) {
         for (var i = aliases.length - 1; i >= 0; i--) {
           cmdName = aliases[i];
@@ -100,6 +115,23 @@ class RanDumBot {
       }
     });
     this.private_commandMap = commandMapBuild;
+
+    /////////////////
+    // Load Timers //
+    /////////////////
+    var normalizedPath = require("path").join(__dirname, "timers");
+    var timerMapBuild = [];
+    require("fs").readdirSync(normalizedPath).forEach( (file) => {
+      var timer = require("./timers/" + file);
+      timer.options = {...default_timerOptions, ...timer.options};
+      timer.update = timerUpdate;
+      timer.data = new Object();
+      timer.data.lastCall = Date.now();
+      timer.data.counter = 0;
+      timer.RanDumBot = this;
+      timerMapBuild.push(timer);
+    });
+    this.private_timerMap = timerMapBuild;
 
     /////////////////
     // Setup tmijs //
@@ -125,6 +157,11 @@ class RanDumBot {
       {this.onJoin(channel, username, self)});
     this.client.on('part', (channel, username, self) =>
       {this.onPart(channel, username, self)});
+
+    // Misc setup
+    if (options.open_chat) opn(`https://dashboard.twitch.tv/popout/u/` +
+                               `${process.env.CHANNEL_NAME}` +
+                               `/stream-manager/chat`);
 
     // Handle exit
     process.on('SIGINT', () => {
@@ -247,6 +284,16 @@ class RanDumBot {
   }
 
   /**
+   * Gets a user's total watchtime on the channel.
+   * @param  {string} username username of watchtime to get
+   * @return {number}          total watchtime in milliseconds
+   */
+  getUserWatchtime(username) {
+    this.updateUserTime(username);
+    return this.getUserData(username, 'total_time');
+  }
+
+  /**
    * Outputs message to the console.
    * @param {string} msg - message to output
    * @param {string} [info] - message tag
@@ -318,7 +365,9 @@ class RanDumBot {
           cmd.data.last_used = Date.now();
           var cmdCooldown = (cmd.cmdOptions ? cmd.cmdOptions.command_cooldown : 0) || 0;
           if (lastUsed + cmdCooldown <= Date.now()) {
+            cmd.data.times_run += 1;
             cmd.run(argc, argv, userstate);
+            cmd.data.last_run = Date.now();
           }
         } catch (err) {
           this.debugMsg(err, 'Error', col.red);
@@ -337,12 +386,18 @@ class RanDumBot {
     io.emit('drawMessage', { user: user, msg: msg });
   }
 
+  /**
+   * Continuous bot update function. Runs at a regular interval accoring to the
+   * `update_interval` option
+   */
   update() {
     setTimeout(() => {
       this.update();
-    }, 1000);
-    this.deltaTime = Date.now() - this.lastTimeUpdate;
-    this.lastTimeUpdate = Date.now();
+    }, options.update_interval);
+
+    for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
+      this.private_timerMap[i].update();
+    }
   }
 
   /**
@@ -369,6 +424,14 @@ class RanDumBot {
   }
 
   /**
+   * Send a message to chat.
+   * @param  {string} msg message to send
+   */
+  say(msg) {
+    this.client.say(process.env.CHANNEL_NAME, msg);
+  }
+
+  /**
    * A list of all avaliable commands and their functions in the form of
    *   [[commandName, [functions]], ...]
    */
@@ -392,6 +455,25 @@ class RanDumBot {
     return this.private_currViewers;
   }
 
+}
+
+/**
+ * Default update function for timers. This gets called every update tick for
+ * each timer. Can be overridden, but may have unexpected results. Is named
+ * update() in timer functions. Calls the run() function once the interval
+ * threshold has been reached.
+ * @ignore
+ */
+function timerUpdate() {
+  var deltaTime = Date.now() - this.data.lastCall;
+  this.data.lastCall = Date.now();
+
+  this.data.counter += deltaTime;
+
+  if (this.data.counter >= this.options.interval) {
+    this.data.counter -= this.options.interval;
+    this.run();
+  }
 }
 
 new RanDumBot();
