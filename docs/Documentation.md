@@ -42,6 +42,7 @@ Also, you have access to special maintained data for each command in the `this.d
 | last_run | `number` | Last time command was run |
 | last_used | `number` | Last time command was used, may or may not have run accoring to `command_cooldown` in [cmdOptions](#cmdOptions) |
 | times_run | `number` | Global number of times the command was run |
+| is_alias | `boolean` | Whether the command is a copy/alias of another command |
 
 
 ## Parameters
