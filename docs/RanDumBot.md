@@ -1,22 +1,3 @@
-## Classes
-
-<dl>
-<dt><a href="#RanDumBot">RanDumBot</a></dt>
-<dd><p>All purpose Twitch bot using tmijs.</p>
-</dd>
-</dl>
-
-## Functions
-
-<dl>
-<dt><a href="#timerUpdate">timerUpdate()</a></dt>
-<dd><p>Default update function for timers. This gets called every update tick for
-each timer. Can be overridden, but may have unexpected results. Is named
-update() in timer functions. Calls the run() function once the interval
-threshold has been reached.</p>
-</dd>
-</dl>
-
 <a name="RanDumBot"></a>
 
 ## RanDumBot
@@ -135,12 +116,3 @@ Send a message to chat.
 | --- | --- | --- |
 | msg | <code>string</code> | message to send |
 
-<a name="timerUpdate"></a>
-
-## timerUpdate()
-Default update function for timers. This gets called every update tick for
-each timer. Can be overridden, but may have unexpected results. Is named
-update() in timer functions. Calls the run() function once the interval
-threshold has been reached.
-
-**Kind**: global function  

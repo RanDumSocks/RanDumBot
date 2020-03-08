@@ -462,6 +462,7 @@ class RanDumBot {
  * each timer. Can be overridden, but may have unexpected results. Is named
  * update() in timer functions. Calls the run() function once the interval
  * threshold has been reached.
+ * @ignore
  */
 function timerUpdate() {
   var deltaTime = Date.now() - this.data.lastCall;
