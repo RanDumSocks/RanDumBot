@@ -1,6 +1,6 @@
 **Documentation for RanDumBot v0.2.0**
 
-RanDumBot is built off of [nodejs](https://nodejs.org/), so that means you should be familiar with programming in JavaScript.
+RanDumBot is built off of [nodejs](https://nodejs.org/), so that means you should be familiar with programming in JavaScript. For the jsdocs of `RanDumBot.js`, see `/docs/RanDumBot.md`.
 
 # Table of Contents
 - [Bot Options](#bot-options)
