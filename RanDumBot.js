@@ -98,6 +98,7 @@ class RanDumBot {
       cmd.data = new Object();
       cmd.data.last_run = 0;
       cmd.data.times_run = 0;
+      cmd.data.name = cmdName;
       cmd.RanDumBot = this;
 
       // Add command to bot
