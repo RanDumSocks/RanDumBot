@@ -1,7 +1,7 @@
 exports.cmdInfo = {
   command_version: '1.0',
   command_author: 'RanDumSocks',
-  bot_version: '0.2.0',
+  bot_version: '0.2.1',
   description: 'Updates the game of the stream',
 };
 
