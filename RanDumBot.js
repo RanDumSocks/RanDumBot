@@ -349,13 +349,15 @@ class RanDumBot {
 
     this.debugMsg(userstate.username + ': ' + argv, 'Command', col.blue)
 
-    this.client.deletemessage(process.env.CHANNEL_NAME, userstate.id).catch((err) => {
-      if (err == 'bad_delete_message_broadcaster') {
-        // Ignore, cannot delete broadcaster messages
-      } else {
-        this.debugMsg(err, 'Error', col.red);
-      }
-    });
+    if (options.delete_command) {
+      this.client.deletemessage(process.env.CHANNEL_NAME, userstate.id).catch((err) => {
+        if (err == 'bad_delete_message_broadcaster') {
+          // Ignore, cannot delete broadcaster messages
+        } else {
+          this.debugMsg(err, 'Error', col.red);
+        }
+      });
+    }
 
     for (var i = 0; i < this.commandMap.length; i += 1) {
       if (argv[0] == this.commandMap[i][0]) {
