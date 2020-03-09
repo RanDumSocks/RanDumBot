@@ -457,6 +457,30 @@ class RanDumBot {
   }
 
   /**
+   * Updates the given channel with the params given, specified by the [Twitch
+   * API](https://dev.twitch.tv/docs/v5/reference/channels/#update-channel). Bot
+   * must have editor access to the channel.
+   * @param  {object} params    parameters to send
+   * @param  {string} channelId ID of channel to update
+   */
+  updateChannel(params, channelId) {
+    this.client.api({
+      url: `https://api.twitch.tv/kraken/channels/${channelId}`,
+      method: 'PUT',
+      json: {
+        channel: params
+      },
+      headers: {
+        'Client-ID': process.env.CLIENT_ID,
+        'Accept': 'application/vnd.twitchtv.v5+json',
+        'Authorization': `OAuth ${process.env.OAUTH_TOKEN}`
+      }
+    }, (err, res, body) => {
+      if (err) this.debugMsg(err, 'Error', col.red);
+    });
+  }
+
+  /**
    * A list of all avaliable commands and their functions in the form of
    *   [[commandName, [functions]], ...]
    */
