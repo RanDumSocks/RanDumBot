@@ -108,6 +108,9 @@ class RanDumBot {
                     `version (${cmd.cmdInfo.command_version}) by ` +
                     `${cmd.cmdInfo.command_author}`);
 
+      // Sort commands alphabetically
+      commandMapBuild.sort( (a, b) => { return a[0].localeCompare(b[0]) });
+
       // Add aliases
       var aliases = cmd.cmdInfo.aliases;
       if (aliases) {
