@@ -366,9 +366,9 @@ class RanDumBot {
         try {
           var cmd = this.commandMap[i][1];
           var lastUsed = cmd.data.last_used || 0;
-          cmd.data.last_used = Date.now();
           var cmdCooldown = (cmd.cmdOptions ? cmd.cmdOptions.command_cooldown : 0) || 0;
           if (lastUsed + cmdCooldown <= Date.now()) {
+            cmd.data.last_used = Date.now();
             cmd.data.times_run += 1;
             cmd.run(argc, argv, userstate);
             cmd.data.last_run = Date.now();
