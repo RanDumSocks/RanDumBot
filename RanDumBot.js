@@ -413,8 +413,12 @@ class RanDumBot {
       this.update();
     }, options.update_interval);
 
-    for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
-      this.private_timerMap[i].update();
+    try {
+      for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
+        this.private_timerMap[i].update();
+      }
+    } catch (err) {
+      this.debugMsg(err, 'Error', col.red);
     }
   }
 
