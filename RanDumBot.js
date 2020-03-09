@@ -40,6 +40,7 @@ var default_cmdInfo = {
 
 var default_cmdOptions = {
   command_cooldown: 0,
+  perm_level: 0
 }
 
 // Default timer objects
@@ -364,14 +365,27 @@ class RanDumBot {
     for (var i = 0; i < this.commandMap.length; i += 1) {
       if (argv[0] == this.commandMap[i][0]) {
         try {
+
+          // Cooldown detection
           var cmd = this.commandMap[i][1];
           var lastUsed = cmd.data.last_used || 0;
           var cmdCooldown = (cmd.cmdOptions ? cmd.cmdOptions.command_cooldown : 0) || 0;
-          if (lastUsed + cmdCooldown <= Date.now()) {
+          var cooldownValid = lastUsed + cmdCooldown <= Date.now();
+
+          // Permission detection
+          var badges = userstate.badges
+          var isBroad = (badges ? userstate.badges.broadcaster : false);
+          var isMod = userstate.mod;
+          var permLevel = 0;
+          if (isMod) permLevel = 1;
+          if (isBroad) permLevel = 2;
+          var permValid = cmd.cmdOptions.perm_level <= permLevel;
+
+          if (cooldownValid && permValid) {
             cmd.data.last_used = Date.now();
+            cmd.data.last_run = Date.now();
             cmd.data.times_run += 1;
             cmd.run(argc, argv, userstate);
-            cmd.data.last_run = Date.now();
           }
         } catch (err) {
           this.debugMsg(err, 'Error', col.red);
