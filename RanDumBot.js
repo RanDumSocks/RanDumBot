@@ -94,19 +94,20 @@ class RanDumBot {
                       ` version (${cmd.cmdInfo.bot_version})`, 'Warn', col.yellow);
       }
 
-      // Add command to bot
-      commandMapBuild.push([cmdName, cmd]);
+      // Add members to command
       cmd.data = new Object();
       cmd.data.last_run = 0;
       cmd.data.times_run = 0;
       cmd.RanDumBot = this;
+
+      // Add command to bot
+      commandMapBuild.push([cmdName, cmd]);
       this.debugMsg(`Loaded command "${cmdName}" ` +
                     `version (${cmd.cmdInfo.command_version}) by ` +
                     `${cmd.cmdInfo.command_author}`);
 
       // Add aliases
       var aliases = cmd.cmdInfo.aliases;
-      cmd.data.is_alias = true;
       if (aliases) {
         for (var i = aliases.length - 1; i >= 0; i--) {
           cmdName = aliases[i];
