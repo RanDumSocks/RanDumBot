@@ -3,15 +3,15 @@ const version = '0.2.0'
 
 // Packages
 require('dotenv').config();
-const http = require("http");
-const url = require("url");  
-const fs = require('fs');
-const express = require('express');
-const ios = require('socket.io');
-const tmi = require('tmi.js');
-const col = require('colors');
-const eJson = require("edit-json-file");
-const opn = require('opn');
+const http      = require("http");
+const url       = require("url");  
+const fs        = require('fs');
+const express   = require('express');
+const ios       = require('socket.io');
+const tmi       = require('tmi.js');
+const col       = require('colors');
+const eJson     = require("edit-json-file");
+const opn       = require('opn');
 
 // Load settings
 var defaultOptionsFile = eJson(`${__dirname}/default_options.json`);
@@ -185,10 +185,12 @@ class RanDumBot {
     // Current viewers
     this.private_currViewers = []
 
+    // Timer setup
     this.deltaTime = 0;
     this.lastTimeUpdate = Date.now();
     this.update();
     
+    // Connect
     this.client.connect();
   }
 
