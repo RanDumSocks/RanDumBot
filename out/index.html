@@ -42,6 +42,197 @@
 
 
 
+    <section>
+        <article><p><a name="RanDumBot"></a></p>
+<h2>RanDumBot</h2>
+<p>All purpose Twitch bot using tmijs.</p>
+<p><strong>Kind</strong>: global class</p>
+<ul>
+<li><a href="#RanDumBot">RanDumBot</a>
+<ul>
+<li><a href="#new_RanDumBot_new">new RanDumBot()</a></li>
+<li><a href="#RanDumBot+commandMap">.commandMap</a></li>
+<li><a href="#RanDumBot+client">.client</a></li>
+<li><a href="#RanDumBot+currentViewers">.currentViewers</a></li>
+<li><a href="#RanDumBot+getUserWatchtime">.getUserWatchtime(username)</a> ⇒ <code>number</code></li>
+<li><a href="#RanDumBot+debugMsg">.debugMsg(msg, [info], [color], [verbose], [sync])</a></li>
+<li><a href="#RanDumBot+update">.update()</a></li>
+<li><a href="#RanDumBot+setUserData">.setUserData(user, key, value)</a></li>
+<li><a href="#RanDumBot+getUserData">.getUserData(user, key)</a> ⇒ <code>string</code></li>
+<li><a href="#RanDumBot+say">.say(msg)</a></li>
+</ul>
+</li>
+</ul>
+<p><a name="new_RanDumBot_new"></a></p>
+<h3>new RanDumBot()</h3>
+<p>Sets up tmijs client.
+Must have valid environment variables.
+See <a href="https://github.com/RanDumSocks/RanDumBot/wiki#environment-variables">Environment Variables Setup</a></p>
+<p><a name="RanDumBot+commandMap"></a></p>
+<h3>ranDumBot.commandMap</h3>
+<p>A list of all avaliable commands and their functions in the form of
+[[commandName, [functions]], ...]</p>
+<p><strong>Kind</strong>: instance property of <a href="#RanDumBot"><code>RanDumBot</code></a><br>
+<a name="RanDumBot+client"></a></p>
+<h3>ranDumBot.client</h3>
+<p>The tmijs client object. See
+<a href="https://github.com/tmijs/docs/tree/gh-pages/_posts/v1.4.2">tmijs</a>
+For full documentation</p>
+<p><strong>Kind</strong>: instance property of <a href="#RanDumBot"><code>RanDumBot</code></a><br>
+<a name="RanDumBot+currentViewers"></a></p>
+<h3>ranDumBot.currentViewers</h3>
+<p>Array of current viewers on the channel</p>
+<p><strong>Kind</strong>: instance property of <a href="#RanDumBot"><code>RanDumBot</code></a><br>
+<a name="RanDumBot+getUserWatchtime"></a></p>
+<h3>ranDumBot.getUserWatchtime(username) ⇒ <code>number</code></h3>
+<p>Gets a user's total watchtime on the channel.</p>
+<p><strong>Kind</strong>: instance method of <a href="#RanDumBot"><code>RanDumBot</code></a><br>
+<strong>Returns</strong>: <code>number</code> - total watchtime in milliseconds</p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>username</td>
+<td><code>string</code></td>
+<td>username of watchtime to get</td>
+</tr>
+</tbody>
+</table>
+<p><a name="RanDumBot+debugMsg"></a></p>
+<h3>ranDumBot.debugMsg(msg, [info], [color], [verbose], [sync])</h3>
+<p>Outputs message to the console.</p>
+<p><strong>Kind</strong>: instance method of <a href="#RanDumBot"><code>RanDumBot</code></a></p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>msg</td>
+<td><code>string</code></td>
+<td></td>
+<td>message to output</td>
+</tr>
+<tr>
+<td>[info]</td>
+<td><code>string</code></td>
+<td><code>&quot;Info&quot;</code></td>
+<td>message tag</td>
+</tr>
+<tr>
+<td>[color]</td>
+<td><code>object</code></td>
+<td></td>
+<td>color of the tag, see   <a href="https://www.npmjs.com/package/colors">Colors</a></td>
+</tr>
+<tr>
+<td>[verbose]</td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>only outputs if verbose logging is on,   always saves to log file reguardless</td>
+</tr>
+<tr>
+<td>[sync]</td>
+<td><code>boolean</code></td>
+<td></td>
+<td>Whether fline IO should be handled synchronously</td>
+</tr>
+</tbody>
+</table>
+<p><a name="RanDumBot+update"></a></p>
+<h3>ranDumBot.update()</h3>
+<p>Continuous bot update function. Runs at a regular interval accoring to the
+<code>update_interval</code> option</p>
+<p><strong>Kind</strong>: instance method of <a href="#RanDumBot"><code>RanDumBot</code></a><br>
+<a name="RanDumBot+setUserData"></a></p>
+<h3>ranDumBot.setUserData(user, key, value)</h3>
+<p>Sets user's data as a key, value pair.</p>
+<p><strong>Kind</strong>: instance method of <a href="#RanDumBot"><code>RanDumBot</code></a></p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td><code>string</code></td>
+<td>username of the data to set, NOT display name</td>
+</tr>
+<tr>
+<td>key</td>
+<td><code>string</code></td>
+<td>key to change</td>
+</tr>
+<tr>
+<td>value</td>
+<td><code>*</code></td>
+<td>value of the key</td>
+</tr>
+</tbody>
+</table>
+<p><a name="RanDumBot+getUserData"></a></p>
+<h3>ranDumBot.getUserData(user, key) ⇒ <code>string</code></h3>
+<p>Gets user's data value from given key.</p>
+<p><strong>Kind</strong>: instance method of <a href="#RanDumBot"><code>RanDumBot</code></a><br>
+<strong>Returns</strong>: <code>string</code> - value fetched from key</p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td><code>string</code></td>
+<td>username of the data to set, NOT display name</td>
+</tr>
+<tr>
+<td>key</td>
+<td><code>string</code></td>
+<td>key to get value from</td>
+</tr>
+</tbody>
+</table>
+<p><a name="RanDumBot+say"></a></p>
+<h3>ranDumBot.say(msg)</h3>
+<p>Send a message to chat.</p>
+<p><strong>Kind</strong>: instance method of <a href="#RanDumBot"><code>RanDumBot</code></a></p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>msg</td>
+<td><code>string</code></td>
+<td>message to send</td>
+</tr>
+</tbody>
+</table></article>
+    </section>
+
 
 
 
@@ -56,7 +247,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 29 2020 22:56:14 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jun 30 2020 22:51:56 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

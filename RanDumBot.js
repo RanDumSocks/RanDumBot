@@ -1,17 +1,17 @@
 // Bot Version
-const version = '0.2.0'
+const version = '0.2.1'
 
 // Packages
 require('dotenv').config();
-const http = require("http");
-const url = require("url");  
-const fs = require('fs');
-const express = require('express');
-const ios = require('socket.io');
-const tmi = require('tmi.js');
-const col = require('colors');
-const eJson = require("edit-json-file");
-const opn = require('opn');
+const http      = require("http");
+const url       = require("url");  
+const fs        = require('fs');
+const express   = require('express');
+const ios       = require('socket.io');
+const tmi       = require('tmi.js');
+const col       = require('colors');
+const eJson     = require("edit-json-file");
+const opn       = require('opn');
 
 // Load settings
 var defaultOptionsFile = eJson(`${__dirname}/default_options.json`);
@@ -40,6 +40,7 @@ var default_cmdInfo = {
 
 var default_cmdOptions = {
   command_cooldown: 0,
+  perm_level: 0
 }
 
 // Default timer objects
@@ -94,19 +95,24 @@ class RanDumBot {
                       ` version (${cmd.cmdInfo.bot_version})`, 'Warn', col.yellow);
       }
 
-      // Add command to bot
-      commandMapBuild.push([cmdName, cmd]);
+      // Add members to command
       cmd.data = new Object();
       cmd.data.last_run = 0;
       cmd.data.times_run = 0;
+      cmd.data.name = cmdName;
       cmd.RanDumBot = this;
+
+      // Add command to bot
+      commandMapBuild.push([cmdName, cmd]);
       this.debugMsg(`Loaded command "${cmdName}" ` +
                     `version (${cmd.cmdInfo.command_version}) by ` +
                     `${cmd.cmdInfo.command_author}`);
 
+      // Sort commands alphabetically
+      commandMapBuild.sort( (a, b) => { return a[0].localeCompare(b[0]) });
+
       // Add aliases
       var aliases = cmd.cmdInfo.aliases;
-      cmd.data.is_alias = true;
       if (aliases) {
         for (var i = aliases.length - 1; i >= 0; i--) {
           cmdName = aliases[i];
@@ -179,10 +185,12 @@ class RanDumBot {
     // Current viewers
     this.private_currViewers = []
 
+    // Timer setup
     this.deltaTime = 0;
     this.lastTimeUpdate = Date.now();
     this.update();
     
+    // Connect
     this.client.connect();
   }
 
@@ -349,25 +357,40 @@ class RanDumBot {
 
     this.debugMsg(userstate.username + ': ' + argv, 'Command', col.blue)
 
-    this.client.deletemessage(process.env.CHANNEL_NAME, userstate.id).catch((err) => {
-      if (err == 'bad_delete_message_broadcaster') {
-        // Ignore, cannot delete broadcaster messages
-      } else {
-        this.debugMsg(err, 'Error', col.red);
-      }
-    });
+    if (options.delete_command) {
+      this.client.deletemessage(process.env.CHANNEL_NAME, userstate.id).catch((err) => {
+        if (err == 'bad_delete_message_broadcaster') {
+          // Ignore, cannot delete broadcaster messages
+        } else {
+          this.debugMsg(err, 'Error', col.red);
+        }
+      });
+    }
 
     for (var i = 0; i < this.commandMap.length; i += 1) {
       if (argv[0] == this.commandMap[i][0]) {
         try {
+
+          // Cooldown detection
           var cmd = this.commandMap[i][1];
           var lastUsed = cmd.data.last_used || 0;
-          cmd.data.last_used = Date.now();
           var cmdCooldown = (cmd.cmdOptions ? cmd.cmdOptions.command_cooldown : 0) || 0;
-          if (lastUsed + cmdCooldown <= Date.now()) {
+          var cooldownValid = lastUsed + cmdCooldown <= Date.now();
+
+          // Permission detection
+          var badges = userstate.badges
+          var isBroad = (badges ? (userstate.badges.broadcaster != null) : false);
+          var isMod = userstate.mod;
+          var permLevel = 0;
+          if (isMod) permLevel = 1;
+          if (isBroad) permLevel = 2;
+          var permValid = cmd.cmdOptions.perm_level <= permLevel;
+
+          if (cooldownValid && permValid) {
+            cmd.data.last_used = Date.now();
+            cmd.data.last_run = Date.now();
             cmd.data.times_run += 1;
             cmd.run(argc, argv, userstate);
-            cmd.data.last_run = Date.now();
           }
         } catch (err) {
           this.debugMsg(err, 'Error', col.red);
@@ -395,8 +418,12 @@ class RanDumBot {
       this.update();
     }, options.update_interval);
 
-    for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
-      this.private_timerMap[i].update();
+    try {
+      for (var i = this.private_timerMap.length - 1; i >= 0; i--) {
+        this.private_timerMap[i].update();
+      }
+    } catch (err) {
+      this.debugMsg(err, 'Error', col.red);
     }
   }
 
@@ -429,6 +456,30 @@ class RanDumBot {
    */
   say(msg) {
     this.client.say(process.env.CHANNEL_NAME, msg);
+  }
+
+  /**
+   * Updates the given channel with the params given, specified by the [Twitch
+   * API](https://dev.twitch.tv/docs/v5/reference/channels/#update-channel). Bot
+   * must have editor access to the channel.
+   * @param  {object} params    parameters to send
+   * @param  {string} channelId ID of channel to update
+   */
+  updateChannel(params, channelId) {
+    this.client.api({
+      url: `https://api.twitch.tv/kraken/channels/${channelId}`,
+      method: 'PUT',
+      json: {
+        channel: params
+      },
+      headers: {
+        'Client-ID': process.env.CLIENT_ID,
+        'Accept': 'application/vnd.twitchtv.v5+json',
+        'Authorization': `OAuth ${process.env.OAUTH_TOKEN.replace("oauth:", "")}`
+      }
+    }, (err, res, body) => {
+      if (err) this.debugMsg(err, 'Error', col.red)
+    });
   }
 
   /**
