@@ -379,7 +379,7 @@ class RanDumBot {
 
           // Permission detection
           var badges = userstate.badges
-          var isBroad = (badges ? userstate.badges.broadcaster : false);
+          var isBroad = (badges ? (userstate.badges.broadcaster != null) : false);
           var isMod = userstate.mod;
           var permLevel = 0;
           if (isMod) permLevel = 1;
@@ -475,10 +475,10 @@ class RanDumBot {
       headers: {
         'Client-ID': process.env.CLIENT_ID,
         'Accept': 'application/vnd.twitchtv.v5+json',
-        'Authorization': `OAuth ${process.env.OAUTH_TOKEN}`
+        'Authorization': `OAuth ${process.env.OAUTH_TOKEN.replace("oauth:", "")}`
       }
     }, (err, res, body) => {
-      if (err) this.debugMsg(err, 'Error', col.red);
+      if (err) this.debugMsg(err, 'Error', col.red)
     });
   }
 
