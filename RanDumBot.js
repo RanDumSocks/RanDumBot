@@ -1,5 +1,5 @@
 // Bot Version
-const version = '0.2.1'
+const version = '0.2.2'
 
 // Packages
 require('dotenv').config();
@@ -68,8 +68,12 @@ class RanDumBot {
    * See {@link https://github.com/RanDumSocks/RanDumBot/wiki#environment-variables|Environment Variables Setup}
    */
   constructor() {
+    // padding used for flush debug output 
+    // Magic number 7 for [Command] tag
+    this.debugInfoPadding = 7   
+
     this.debugMsg(`Thanks for using RanDumBot version (${version})`);
-    this.debugMsg(`Check out the developer's discord: https://discord.gg/WC5DQ24`);
+    this.debugMsg(`Check out the developer's discord: https://discord.gg/SQArB7m`);
 
     ///////////////////
     // Load commands //
@@ -200,7 +204,7 @@ class RanDumBot {
    */
   onChat(channel, userstate, message, self) {
     if (self) {
-      this.logMessage(message, 'BOT');
+      this.debugMsg(`${col.cyan("BOT")}: ${message}`, "Chat", col.cyan)
       return;
     }
 
@@ -208,8 +212,9 @@ class RanDumBot {
 
     if (message[0] == '!') {
       this.parseCommand(message.slice(1, message.length), userstate);
+      this.debugMsg(`${col.cyan(userstate['display-name'])}: ${message.replace('!', col.blue("!"))}`, 'Command', col.blue)
     } else {
-      this.logMessage(message, userstate['display-name']);
+      this.debugMsg(`${col.cyan(userstate['display-name'])}: ${message}`, "Chat", col.cyan)
     }
   }
 
@@ -229,7 +234,7 @@ class RanDumBot {
    */
   onPart(channel, username, self) {
     if (!self) {
-      this.debugMsg(username + ' has left',
+      this.debugMsg(col.yellow(username) + ' has left',
                     'Part',
                     col.yellow);
       this.userLeave(username);
@@ -255,7 +260,7 @@ class RanDumBot {
     if (viewerIndex == -1) {
       this.setUserData(username, 'last_time_update', Date.now());
       this.private_currViewers.push(username);
-      this.debugMsg(username + ' has joined',
+      this.debugMsg(col.green(username) + ' has joined',
                     'Join',
                     col.green);
     }
@@ -312,34 +317,23 @@ class RanDumBot {
    * @param {boolean} [sync] - Whether fline IO should be handled synchronously
    */
   debugMsg(msg, info = 'Info', color = col.gray, verbose = false, sync = syncMode) {
+    // automatic padding
+    this.debugInfoPadding = info.length > this.debugInfoPadding ? info.length : this.debugInfoPadding
+    var padding = this.debugInfoPadding - info.length
+
     // TODO: Implement verbose flag
-    console.log('[' + color(info) + ']: ' + msg);
+    console.log(`${color(info)}${" ".repeat(padding)} │ ${msg}`)
     // TODO: Add function to append files to log
+    var logText = `${info}${" ".repeat(padding)} │ ${msg}\n`.replace(/.{4}/gm, "")
     if (sync) {
-      fs.appendFileSync(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
+      fs.appendFileSync(`./logs/${logName}.log`, logText, function (err) {
         if (err) throw err;
       });
     } else {
-      fs.appendFile(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
+      fs.appendFile(`./logs/${logName}.log`, logText, function (err) {
         if (err) throw err;
       });
     }
-  }
-
-  /**
-   * Outputs user message to the console. Should not be called anywhere else,
-   *   consider it a private function.
-   * @param {string} msg - user message
-   * @pram {string} user - name of user who sent the message
-   * @ignore
-   */
-  logMessage(msg, user) {
-    console.log(user.cyan + ': ' + msg);
-    // TODO: Add function to append files to log
-    fs.appendFile(`./logs/${logName}.log`, user + ': ' + msg + '\n', function (err) {
-      if (err) throw err;
-    });
-    this.pushMessage(msg, user);
   }
 
   /**
@@ -354,8 +348,6 @@ class RanDumBot {
     // TODO: Custom command denoter
     const argv = command.split(' ');
     const argc = argv.length;
-
-    this.debugMsg(userstate.username + ': ' + argv, 'Command', col.blue)
 
     if (options.delete_command) {
       this.client.deletemessage(process.env.CHANNEL_NAME, userstate.id).catch((err) => {
