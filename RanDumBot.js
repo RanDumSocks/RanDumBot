@@ -1,5 +1,5 @@
 // Bot Version
-const version = '0.2.1'
+const version = '0.2.2'
 
 // Packages
 require('dotenv').config();
@@ -73,7 +73,7 @@ class RanDumBot {
     this.debugInfoPadding = 7   
 
     this.debugMsg(`Thanks for using RanDumBot version (${version})`);
-    this.debugMsg(`Check out the developer's discord: https://discord.gg/WC5DQ24`);
+    this.debugMsg(`Check out the developer's discord: https://discord.gg/SQArB7m`);
 
     ///////////////////
     // Load commands //
@@ -322,9 +322,9 @@ class RanDumBot {
     var padding = this.debugInfoPadding - info.length
 
     // TODO: Implement verbose flag
-    console.log(`[${color(info)}]${" ".repeat(padding)} │ ${msg}`)
+    console.log(`${color(info)}${" ".repeat(padding)} │ ${msg}`)
     // TODO: Add function to append files to log
-    var logText = `[${info}]${" ".repeat(padding)} │ ${msg}\n`.replace(/.{4}/gm, "")
+    var logText = `${info}${" ".repeat(padding)} │ ${msg}\n`.replace(/.{4}/gm, "")
     if (sync) {
       fs.appendFileSync(`./logs/${logName}.log`, logText, function (err) {
         if (err) throw err;
