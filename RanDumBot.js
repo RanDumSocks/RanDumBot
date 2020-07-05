@@ -324,7 +324,7 @@ class RanDumBot {
     // TODO: Implement verbose flag
     console.log(`[${color(info)}]${" ".repeat(padding)} │ ${msg}`)
     // TODO: Add function to append files to log
-    var logText = `[${info}]${" ".repeat(padding)} │ ${msg}\n`.replace(/.{3}m/, "")
+    var logText = `[${info}]${" ".repeat(padding)} │ ${msg}\n`.replace(/.{4}/gm, "")
     if (sync) {
       fs.appendFileSync(`./logs/${logName}.log`, logText, function (err) {
         if (err) throw err;
