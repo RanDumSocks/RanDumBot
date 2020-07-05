@@ -212,6 +212,7 @@ class RanDumBot {
 
     if (message[0] == '!') {
       this.parseCommand(message.slice(1, message.length), userstate);
+      this.debugMsg(`${col.cyan(userstate['display-name'])}: ${message}`, 'Command', col.blue)
     } else {
       this.debugMsg(`${col.cyan(userstate['display-name'])}: ${message}`, "Chat", col.cyan)
     }
@@ -347,8 +348,6 @@ class RanDumBot {
     // TODO: Custom command denoter
     const argv = command.split(' ');
     const argc = argv.length;
-
-    this.debugMsg(userstate.username + ': ' + argv, 'Command', col.blue)
 
     if (options.delete_command) {
       this.client.deletemessage(process.env.CHANNEL_NAME, userstate.id).catch((err) => {
