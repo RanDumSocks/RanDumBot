@@ -68,6 +68,10 @@ class RanDumBot {
    * See {@link https://github.com/RanDumSocks/RanDumBot/wiki#environment-variables|Environment Variables Setup}
    */
   constructor() {
+    // padding used for flush debug output 
+    // Magic number 7 for [Command] tag
+    this.debugInfoPadding = 7   
+
     this.debugMsg(`Thanks for using RanDumBot version (${version})`);
     this.debugMsg(`Check out the developer's discord: https://discord.gg/WC5DQ24`);
 
@@ -312,15 +316,20 @@ class RanDumBot {
    * @param {boolean} [sync] - Whether fline IO should be handled synchronously
    */
   debugMsg(msg, info = 'Info', color = col.gray, verbose = false, sync = syncMode) {
+    // automatic padding
+    this.debugInfoPadding = info.length > this.debugInfoPadding ? info.length : this.debugInfoPadding
+    var padding = this.debugInfoPadding - info.length
+
     // TODO: Implement verbose flag
-    console.log('[' + color(info) + ']: ' + msg);
+    console.log(`[${color(info)}]${" ".repeat(padding)} │ ${msg}`)
     // TODO: Add function to append files to log
+    var logText = `[${info}]${" ".repeat(padding)} │ ${msg}\n`.replace(/.{3}m/, "")
     if (sync) {
-      fs.appendFileSync(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
+      fs.appendFileSync(`./logs/${logName}.log`, logText, function (err) {
         if (err) throw err;
       });
     } else {
-      fs.appendFile(`./logs/${logName}.log`, '[' + info + ']: ' + msg + '\n', function (err) {
+      fs.appendFile(`./logs/${logName}.log`, logText, function (err) {
         if (err) throw err;
       });
     }
