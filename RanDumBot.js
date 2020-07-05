@@ -212,7 +212,7 @@ class RanDumBot {
 
     if (message[0] == '!') {
       this.parseCommand(message.slice(1, message.length), userstate);
-      this.debugMsg(`${col.cyan(userstate['display-name'])}: ${message}`, 'Command', col.blue)
+      this.debugMsg(`${col.cyan(userstate['display-name'])}: ${message.replace('!', col.blue("!"))}`, 'Command', col.blue)
     } else {
       this.debugMsg(`${col.cyan(userstate['display-name'])}: ${message}`, "Chat", col.cyan)
     }
