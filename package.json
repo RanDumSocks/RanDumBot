@@ -6,7 +6,7 @@
     "express": "^4.17.1",
     "opn": "^6.0.0",
     "require.js": "^1.0.0",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "tmi.js": "^1.5.0"
   }
 }
